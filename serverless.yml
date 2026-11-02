@@ -64,6 +64,29 @@ custom:
     identitySource: method.request.header.Authorization
 
 functions:
+
+  # ---------- Publicos (sin authorizer) ----------
+
+  login:
+    handler: src/handlers/login.manejar
+    description: Emite el JWT con el tenant_id dentro
+    events:
+      - http:
+          path: /login
+          method: post
+          cors: true
+
+  tenants:
+    handler: src/handlers/tenants.manejar
+    description: Lista las organizaciones para el selector del login
+    events:
+      - http:
+          path: /tenants
+          method: get
+          cors: true
+
+  # ---------- Protegidos por el authorizer compartido ----------
+
   health:
     handler: src/handlers/health.manejar
     events:
@@ -73,8 +96,60 @@ functions:
           cors: true
           authorizer: ${self:custom.autorizador}
 
-  # TODO(Osomar1705): tus endpoints van aqui. Minimo 5 protegidos.
-  # Copia el bloque de health y cambia path/method/handler.
+  perfil:
+    handler: src/handlers/perfil.manejar
+    description: Datos del usuario dueno del token
+    events:
+      - http:
+          path: /perfil
+          method: get
+          cors: true
+          authorizer: ${self:custom.autorizador}
+
+  crearUsuario:
+    handler: src/handlers/usuarios.crear
+    events:
+      - http:
+          path: /usuarios
+          method: post
+          cors: true
+          authorizer: ${self:custom.autorizador}
+
+  listarUsuarios:
+    handler: src/handlers/usuarios.listar
+    events:
+      - http:
+          path: /usuarios
+          method: get
+          cors: true
+          authorizer: ${self:custom.autorizador}
+
+  obtenerUsuario:
+    handler: src/handlers/usuarios.obtener
+    events:
+      - http:
+          path: /usuarios/{email}
+          method: get
+          cors: true
+          authorizer: ${self:custom.autorizador}
+
+  actualizarUsuario:
+    handler: src/handlers/usuarios.actualizar
+    events:
+      - http:
+          path: /usuarios/{email}
+          method: put
+          cors: true
+          authorizer: ${self:custom.autorizador}
+
+  desactivarUsuario:
+    handler: src/handlers/usuarios.desactivar
+    events:
+      - http:
+          path: /usuarios/{email}
+          method: delete
+          cors: true
+          authorizer: ${self:custom.autorizador}
 
 resources:
   Resources:
