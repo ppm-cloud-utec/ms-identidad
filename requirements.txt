@@ -1,1 +1,1 @@
-# boto3 ya viene en el runtime de Lambda
+PyJWT==2.9.0

@@ -1,18 +1,38 @@
-"""Acceso a DynamoDB con aislamiento por particion de tenant."""
+"""Acceso a DynamoDB. Single-table design con aislamiento por particion.
+
+Claves:
+  Tenant   pk = "TENANTS"            sk = "TENANT#<tenant_id>"
+  Usuario  pk = "TENANT#<tenant_id>" sk = "USUARIO#<email>"
+
+El email es la clave de ordenamiento del usuario porque es unico dentro del
+tenant: asi el login es un GetItem directo, sin indices ni scans. El usuario_id
+se guarda como atributo.
+"""
 import os
 
 import boto3
 
 _dynamo = boto3.resource("dynamodb")
 
-
-def tabla(nombre):
-    return _dynamo.Table(os.environ[nombre])
+REGISTRO_TENANTS = "TENANTS"
 
 
-def pk(tenant_id):
-    """La partition key SIEMPRE empieza con el tenant.
+def tabla():
+    return _dynamo.Table(os.environ["TABLA"])
 
-    Asi una query no puede cruzar tenants ni por error.
+
+def pk_tenant(tenant_id):
+    """La particion de los usuarios de un tenant.
+
+    Todo acceso a usuarios pasa por aqui, asi una query no puede cruzar
+    tenants ni por error de programacion.
     """
+    return f"TENANT#{tenant_id}"
+
+
+def sk_usuario(email):
+    return f"USUARIO#{email.strip().lower()}"
+
+
+def sk_tenant(tenant_id):
     return f"TENANT#{tenant_id}"
