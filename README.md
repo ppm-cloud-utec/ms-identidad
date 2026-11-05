@@ -55,10 +55,12 @@ authorizer compartido lo extrae y lo entrega a los 6 microservicios por el
 `JWT_SECRET`, el topic SNS y el authorizer).
 
 ```bash
-pip install -r requirements.txt
-npm install
-sls deploy
+npm install            # instala Serverless v3 y el plugin de Python
+npx serverless deploy
 ```
+
+Necesita **Docker corriendo** si este microservicio usa RDS: el plugin compila
+`psycopg` contra Amazon Linux dentro de un contenedor.
 
 ## Cargar datos
 
