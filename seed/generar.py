@@ -68,7 +68,7 @@ APELLIDOS = [
 
 def hash_demo():
     """Un solo hash para los 30,000 usuarios ficticios."""
-    from src.claves import hashear
+    from src.password import hashear
     return hashear(PASSWORD_DEMO)
 
 

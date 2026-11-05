@@ -10,7 +10,7 @@ from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 
 from src import db, roles
-from src.claves import hashear
+from src.password import hashear
 from src.respuesta import cuerpo_de, error, ok, tenant_de
 
 

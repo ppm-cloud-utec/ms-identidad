@@ -2,7 +2,8 @@
 from botocore.exceptions import ClientError
 
 from src import db
-from src.claves import emitir_token, verificar
+from src.claves import emitir_token
+from src.password import verificar
 from src.respuesta import cuerpo_de, error, ok
 
 

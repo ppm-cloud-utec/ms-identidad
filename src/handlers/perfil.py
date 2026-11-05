@@ -1,7 +1,6 @@
 """GET /perfil — quien soy, segun el token."""
 from src import db
 from src.respuesta import error, ok, tenant_de
-from src.claves import SECRETO  # noqa: F401  (valida que la env exista al cargar)
 
 
 def manejar(event, context):
