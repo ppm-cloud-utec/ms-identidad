@@ -165,6 +165,23 @@ functions:
           cors: true
           authorizer: ${self:custom.autorizador}
 
+  # ---------- Aprovisionamiento de tenants ----------
+  # Sin evento http: las invoca la maquina de estados
+  # ppm-aprovisionar-tenant. Dar de alta una organizacion es una operacion
+  # de plataforma, no una operacion de negocio dentro de un tenant.
+  aprovisionarTenant:
+    handler: src/handlers/aprovisionar.aprovisionar
+    name: ms-identidad-${sls:stage}-aprovisionarTenant
+    description: Registra el tenant y crea su administrador
+    timeout: 30
+
+  compensarTenant:
+    handler: src/handlers/aprovisionar.compensar
+    name: ms-identidad-${sls:stage}-compensarTenant
+    description: "Rollback del alta: borra el admin y el registro del tenant"
+    timeout: 30
+
+
 resources:
   Resources:
     Tabla:
