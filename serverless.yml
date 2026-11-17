@@ -20,7 +20,8 @@ provider:
     TABLA: ${self:service}-identidad-${sls:stage}
     # Este microservicio FIRMA los tokens, asi que necesita el mismo secreto
     # que el authorizer compartido usa para verificarlos.
-    JWT_SECRET: ${ssm:/ppm/jwt-secret}
+    # El NOMBRE del secreto, no su valor. Ver src/secretos.py.
+    JWT_SECRET_NOMBRE: ppm/jwt-secret
   # AWS Academy no permite crear roles IAM: se reusa LabRole.
   # En una cuenta propia, borra la linea `role:` y descomenta los permisos,
   # que son los minimos que este microservicio necesita.

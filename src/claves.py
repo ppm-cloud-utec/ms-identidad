@@ -8,8 +8,13 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 
+from src import secretos
+
 HORAS_VALIDEZ = 12
-SECRETO = os.environ["JWT_SECRET"]
+# El secreto se resuelve al usarlo, no al desplegar: asi no queda escrito
+# en la configuracion de la Lambda. Ver src/secretos.py.
+def _secreto():
+    return secretos.de_entorno("JWT_SECRET_NOMBRE")
 
 
 def emitir_token(usuario_id, tenant_id, rol, email):
@@ -28,6 +33,6 @@ def emitir_token(usuario_id, tenant_id, rol, email):
             "iat": ahora,
             "exp": ahora + timedelta(hours=HORAS_VALIDEZ),
         },
-        SECRETO,
+        _secreto(),
         algorithm="HS256",
     )
