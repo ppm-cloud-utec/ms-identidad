@@ -1,11 +1,4 @@
-"""GET /tenants — publico. Alimenta el selector de organizacion del login.
-
-Devuelve solo id y nombre, nunca cuantos usuarios tiene ni datos internos.
-
-En un SaaS real el tenant se deduce del subdominio (acme.portafolio.com) y este
-endpoint no existiria. Para la demo el frontend necesita un selector visible,
-asi que se expone la lista minima a proposito.
-"""
+"""GET /tenants — publico."""
 from boto3.dynamodb.conditions import Key
 
 from src import db

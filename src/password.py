@@ -1,15 +1,4 @@
-"""Hash y verificacion de contrasenas. Solo libreria estandar.
-
-Vive aparte de claves.py a proposito: hashear una contrasena no necesita ni
-PyJWT ni la variable JWT_SECRET. Si estuviera junto a la emision de tokens,
-el seed (que solo hashea) no podria correr sin tener configurado el entorno
-completo de la Lambda.
-
-PBKDF2-HMAC-SHA256 con 200,000 iteraciones y salt de 16 bytes por usuario, que
-es lo que recomienda OWASP. Se eligio sobre bcrypt y argon2 porque viene en la
-libreria estandar y no obliga a compilar extensiones en C para el paquete de
-la Lambda.
-"""
+"""Hash y verificacion de contrasenas."""
 import hmac
 import base64
 import hashlib

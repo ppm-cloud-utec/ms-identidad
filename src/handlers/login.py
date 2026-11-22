@@ -23,8 +23,6 @@ def manejar(event, context):
     except ClientError:
         return error("ERROR_BD", "No se pudo consultar el usuario", 500)
 
-    # Mismo mensaje si el usuario no existe o si la clave esta mal: no le
-    # decimos a un atacante cuales correos estan registrados.
     if not item or not verificar(password, item["password_hash"]):
         return error("CREDENCIALES_INVALIDAS", "Email o contrasena incorrectos", 401)
 

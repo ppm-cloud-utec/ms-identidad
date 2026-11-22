@@ -1,15 +1,4 @@
-"""Alta y baja de un tenant en ms-identidad.
-
-La invoca la maquina de estados `ppm-aprovisionar-tenant`. Este servicio es
-dueno de dos cosas del alta: el registro del tenant (lo que alimenta el
-selector del login) y su primer usuario administrador.
-
-Sobre la contrasena del admin: NO entra ni sale por la maquina de estados. El
-input y el output de cada paso quedan guardados en el historial de ejecucion
-de Step Functions, que cualquiera con acceso a la consola puede leer. Asi que
-se genera aqui dentro, se guarda cifrada en Parameter Store y hacia afuera
-solo viaja el NOMBRE del parametro.
-"""
+"""Alta y baja de un tenant en ms-identidad."""
 import os
 import secrets
 import uuid
@@ -51,8 +40,6 @@ def aprovisionar(event, context):
         "rubro": rubro,
     })
 
-    # 2. El administrador. Si ya existe se respeta: reaprovisionar no debe
-    #    pisarle la contrasena a nadie.
     clave = secrets.token_urlsafe(12)
     creado = True
     try:

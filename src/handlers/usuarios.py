@@ -1,9 +1,4 @@
-"""CRUD de usuarios dentro del tenant del token.
-
-Todas las operaciones estan encerradas en la particion del tenant: ni siquiera
-un admin puede tocar usuarios de otra organizacion, porque el tenant_id sale
-del token y no de la request.
-"""
+"""CRUD de usuarios dentro del tenant del token."""
 import uuid
 
 from boto3.dynamodb.conditions import Key
@@ -75,7 +70,6 @@ def listar(event, context):
     limite = min(int(q.get("limite", 50)), 200)
 
     args = {
-        # begins_with sobre el sk deja fuera el item de metadata del tenant
         "KeyConditionExpression": Key("pk").eq(db.pk_tenant(tenant_id))
         & Key("sk").begins_with("USUARIO#"),
         "ProjectionExpression": "usuario_id, email, nombre, #r, activo",
@@ -83,8 +77,6 @@ def listar(event, context):
         "Limit": limite,
     }
     if q.get("rol"):
-        # Se arma a mano en vez de con Attr() para no chocar con el
-        # ExpressionAttributeNames que ya declaramos arriba.
         args["FilterExpression"] = "#r = :rol"
         args["ExpressionAttributeValues"] = {":rol": q["rol"]}
     if q.get("cursor"):
@@ -168,12 +160,7 @@ def actualizar(event, context):
 
 
 def desactivar(event, context):
-    """DELETE /usuarios/{email} — baja logica, no borra. Solo admin.
-
-    No se borra el registro porque otros microservicios guardan el usuario_id
-    como responsable de proyectos y tareas; si desapareciera, esas referencias
-    quedarian huerfanas.
-    """
+    """DELETE /usuarios/{email} — baja logica, no borra."""
     negado = roles.exige(event, roles.ADMIN)
     if negado:
         return negado

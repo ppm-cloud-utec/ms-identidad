@@ -1,22 +1,5 @@
 #!/usr/bin/env python3
-"""Carga 30,003 registros en ms-identidad, repartidos en 3 tenants.
-
-    python seed/generar.py                  # los 3 tenants
-    python seed/generar.py --tenant t-acme   # solo uno
-    python seed/generar.py --contar          # solo contar lo que ya hay
-
-Reparto: 3 items de tenant + 10,001 usuarios por tenant = 30,003 registros.
-
-Los tres tenants tienen PERFILES DISTINTOS a proposito (proporcion de roles
-distinta segun el rubro). Si los datos salen identicos, el multi-tenancy se ve
-falso en la demo.
-
-Rendimiento: las 30,000 contrasenas comparten un unico hash precalculado.
-Hashear cada una con los 200,000 ciclos de PBKDF2 tomaria unos 25 minutos; con
-uno solo toma milisegundos y el login sigue siendo real. Los usuarios de la
-demo usan la misma clave, lo cual es correcto para datos ficticios y esta
-documentado en el informe.
-"""
+"""Carga 30,003 registros en ms-identidad, repartidos en 3 tenants."""
 import os
 import sys
 import uuid
@@ -100,7 +83,6 @@ def generar(tenant_id, cfg, tabla, hash_password):
     })
     escritos += 1
 
-    # 2. El admin con email predecible, para poder entrar en la demo
     corto = tenant_id.removeprefix("t-")
     with tabla.batch_writer(overwrite_by_pkeys=["pk", "sk"]) as lote:
         lote.put_item(Item={
@@ -164,7 +146,7 @@ def main():
     if args.contar:
         return contar(tabla)
 
-    random.seed(2026)  # reproducible: dos corridas dan los mismos datos
+    random.seed(2026)
     objetivo = {args.tenant: TENANTS[args.tenant]} if args.tenant else TENANTS
 
     print(f"Tabla: {TABLA}")

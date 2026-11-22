@@ -1,14 +1,9 @@
 service: ms-identidad
 
-# Se usa la v3 a proposito: la v4 exige una cuenta de serverless.com y un
-# SERVERLESS_ACCESS_KEY para cada deploy. La v3 solo necesita credenciales
-# de AWS, que es lo unico que da el Learner Lab.
 frameworkVersion: "3"
 
 provider:
   name: aws
-  # Usa la API Gateway unica de infra-compartida en vez de crear una
-  # propia. Todas las rutas de este servicio viven bajo /identidad.
   apiGateway:
     restApiId: ${cf:infra-compartida-${sls:stage}.ApiId}
     restApiRootResourceId: ${cf:infra-compartida-${sls:stage}.ApiRootResourceId}
@@ -23,37 +18,9 @@ provider:
     SNS_TOPIC_ARN: ${cf:infra-compartida-${sls:stage}.SnsEventosArn}
     TABLA_EVENTOS_PROCESADOS: ${cf:infra-compartida-${sls:stage}.TablaEventosProcesados}
     TABLA: ${self:service}-identidad-${sls:stage}
-    # Este microservicio FIRMA los tokens, asi que necesita el mismo secreto
-    # que el authorizer compartido usa para verificarlos.
-    # El NOMBRE del secreto, no su valor. Ver src/secretos.py.
     JWT_SECRET_NOMBRE: ppm/jwt-secret
-  # AWS Academy no permite crear roles IAM: se reusa LabRole.
-  # En una cuenta propia, borra la linea `role:` y descomenta los permisos,
-  # que son los minimos que este microservicio necesita.
   iam:
     role: arn:aws:iam::${aws:accountId}:role/LabRole
-    # role:
-    #   statements:
-  #     - Effect: Allow
-  #       Action:
-  #         - sns:Publish
-  #       Resource: ${cf:infra-compartida-${sls:stage}.SnsEventosArn}
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:PutItem
-  #       Resource: ${cf:infra-compartida-${sls:stage}.TablaEventosProcesadosArn}
-  #     - Effect: Allow
-  #       Action:
-  #         - dynamodb:Query
-  #         - dynamodb:GetItem
-  #         - dynamodb:PutItem
-  #         - dynamodb:UpdateItem
-  #         - dynamodb:DeleteItem
-  #         - dynamodb:BatchWriteItem
-  #       Resource:
-  #         - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:service}-identidad-${sls:stage}
-  #         - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:service}-identidad-${sls:stage}/index/*
-  #
 package:
   individually: false
   patterns:
@@ -65,18 +32,10 @@ plugins:
 
 custom:
   pythonRequirements:
-    # true, no "non-linux": en Linux "non-linux" NO usa Docker y busca un
-    # binario python3.12 local, que no existe (el sistema trae 3.14).
-    # Forzar Docker ademas garantiza que psycopg se compile contra Amazon
-    # Linux, que es donde corre la Lambda.
     dockerizePip: true
     slim: true
-    # Cache propio por repo. El cache global de ~/.cache lo comparten todos
-    # los servicios, y si dos despliegues corren a la vez un contenedor lo
-    # deja en root:root mientras el otro lo lee -> EACCES.
     cacheLocation: ./.serverless-cache
   autorizador:
-    # Registrado una sola vez en la API compartida (infra-compartida).
     type: CUSTOM
     authorizerId: ${cf:infra-compartida-${sls:stage}.AutorizadorApiId}
 
@@ -102,7 +61,6 @@ functions:
           method: get
           cors: true
 
-  # ---------- Protegidos por el authorizer compartido ----------
 
   health:
     handler: src/handlers/health.manejar
@@ -168,10 +126,6 @@ functions:
           cors: true
           authorizer: ${self:custom.autorizador}
 
-  # ---------- Aprovisionamiento de tenants ----------
-  # Sin evento http: las invoca la maquina de estados
-  # ppm-aprovisionar-tenant. Dar de alta una organizacion es una operacion
-  # de plataforma, no una operacion de negocio dentro de un tenant.
   aprovisionarTenant:
     handler: src/handlers/aprovisionar.aprovisionar
     name: ms-identidad-${sls:stage}-aprovisionarTenant
@@ -198,10 +152,8 @@ resources:
           - AttributeName: sk
             AttributeType: S
         KeySchema:
-          # pk = TENANT#<tenant_id>  -> el aislamiento vive en la particion
           - AttributeName: pk
             KeyType: HASH
           - AttributeName: sk
             KeyType: RANGE
-
 

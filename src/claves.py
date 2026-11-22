@@ -1,8 +1,4 @@
-"""Emision del JWT.
-
-El hash de contrasenas vive en password.py, que no depende de PyJWT ni de
-JWT_SECRET: asi el seed puede hashear sin levantar el entorno de la Lambda.
-"""
+"""Emision del JWT."""
 import os
 from datetime import datetime, timedelta, timezone
 
@@ -11,18 +7,12 @@ import jwt
 from src import secretos
 
 HORAS_VALIDEZ = 12
-# El secreto se resuelve al usarlo, no al desplegar: asi no queda escrito
-# en la configuracion de la Lambda. Ver src/secretos.py.
 def _secreto():
     return secretos.de_entorno("JWT_SECRET_NOMBRE")
 
 
 def emitir_token(usuario_id, tenant_id, rol, email):
-    """El tenant_id va DENTRO del token: es lo que hace el aislamiento.
-
-    El authorizer compartido lo extrae y lo entrega a los 6 microservicios por
-    el requestContext. Ningun microservicio llama a ms-identidad por HTTP.
-    """
+    """El tenant_id va DENTRO del token: es lo que hace el aislamiento."""
     ahora = datetime.now(timezone.utc)
     return jwt.encode(
         {
